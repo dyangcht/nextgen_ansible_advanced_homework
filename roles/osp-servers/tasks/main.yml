@@ -1,7 +1,7 @@
 ---
 
 # tasks file for osp.servers
-- name: Create server for QA
+- name: Create QA servers
   os_server:
     cloud: openstack
     name: "{{ item.0.name }}"
@@ -18,13 +18,11 @@
       #!/bin/bash
       curl -o /tmp/openstack.pub http://www.opentlc.com/download/ansible_bootcamp/openstack_keys/openstack.pub
       cat /tmp/openstack.pub >> /home/cloud-user/.ssh/authorized_keys
-#      curl -o /etc/yum.repos.d/internal.repo http://www.opentlc.com/download/ansible_bootcamp/repo/internal.repo
-# http://192.168.0.5 doesn't work
   with_subelements:
     - "{{osp_servers}}"
     - meta
 
-- name: Add floating IP to Servers
+- name: Add floating IP
   os_floating_ip:
     cloud: openstack
     state: present
@@ -40,15 +38,7 @@
     cloud: openstack
   register: result
 
-# - name: Print openstack servers result  
-  # debug:
-    # var: item.name
-  # with_items: 
-  # - "{{ result.openstack_servers}}"
-  # tags:
-    # - test.servers
-
-- name: Wait for server to be available
+- name: Waiting for server to be available
   wait_for:
     host: "{{ item.public_v4 }}"
     port: 22
